@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1516683604404.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "2EE2FA20",
+    "lastKnownWriteTime" : 1516318482,
+    "last_content_update" : 1516318482,
+    "path" : "C:/Users/sofya_000/Python Notebooks/Udacity Nanodegree/Data Analyst/Project - Exploratory Data Analysis/wineQualityReds.csv",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "0,104",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "text"
+}

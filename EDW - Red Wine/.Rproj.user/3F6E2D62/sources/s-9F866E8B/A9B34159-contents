@@ -1,0 +1,318 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
+Exploratory Data Analysis on the Factors of Red Wine Quality using R
+By: Sofyan Sahrom
+========================================================
+
+# Research Question: Which chemical properties influence the quality of red wines?
+
+# Background: Red Wine quality is graded by experts on a scale of 0 (very bad) to 10 (very excellent). To help understand what are the factors that determine the wine quality, the physicochemical properties of the wine was investigated. This is a qualititave measurement.
+
+# By examining the physicochemical properties of wines of different grades, it might be possible to investigate whether there are factors or variables that can help determine the quality of red wine. This can help to quantify some of the grading process of the what is eitherwise a very qualitative measurement. This information in turn can be used in the future to help create a preliminary grading of wine quality (based on quantifiable measures) or something smiliar alomg that line. An example is a predictive model (based on the variables) that will be able to provide guidance to vineyard to determine their quality and price quantifiable without the wine tasters that might be more volatile. 
+
+# Therefore the quality of wine will be the dependent variable while the physicochemical properties of the wine will be the independent variables or factors.
+
+# To answer the research question, we will have 5 stages
+# Stage 1: Preparation Phase
+#   Stage 1a - Preparation for Battle
+#   Stage 1b - Loading the battlefield (Data) and Reconnaisance of Data (Part I)
+# Stage 2: Reconnaisance and Understanding the Data
+#    Stage 2a - Plotting the Layout of Battlefield (Distribution)
+#    Stage 2b - Reconnaisance of Data (Part II) - PCA to help narrow variables through correlation.
+# Stage 3: Udacity Exam Project Requirements - Reverse Analysis (Univariate to Mulitvariate)
+# Stage 4:
+
+
+
+
+
+# Stage 1a - Preparation for Battle - Loading of all relevant dependancies and libaries (that will be required for the EDA)
+```{r}
+library(ggplot2)
+library(e1071)  
+library(gridExtra)
+library(Simpsons)
+library(GGally)
+library(memisc)
+library(pander)
+library(corrplot)
+``
+
+# Stage 1b - Loading the Battlefield and Reconnaisance of Data (Part I)
+```{r}
+wine <- read.csv('C:/Users/sofya_000/Python Notebooks/Udacity Nanodegree/Data Analyst/Project - Exploratory Data Analysis/wineQualityReds.csv')[-1] # Loading the csv file
+head(wine) # Reconnaisance of Data - Preview of dataframe
+str(wine) # Struture and Details of the Data
+summary(wine) # General Descriptive Statistics of the Data
+```
+
+
+
+# Understanding the Data:
+
+# Reconnaisannce of the DataFrame revealed that 11 physicochemical properties were recorded. This will be the independent variables of interest or factors that may have an effect on the quality of wine.
+
+# Stage 2a - Plotting the Layout of Battlefield (Distribution)
+```{r}
+grid.arrange(ggplot(wine, aes( x = 1, y = quality) ) + 
+               geom_jitter(alpha = 0.1 ) +
+               geom_boxplot(alpha = 0.2, color = 'red' ) +
+               scale_y_continuous(lim = c(2,9)),
+ggplot(data = wine, aes(x = quality)) +
+  geom_histogram(binwidth = 1, color = 'black',fill = I('red')) + 
+  scale_x_continuous(lim = c(0,10)),ncol = 2)
+w.quality <- wine$quality
+skewness(w.quality)
+kurtosis(w.quality)
+```
+# Surveying the Battlefield: 
+# 1) Distribution: Kurtosis exist and very high (0.287), while skewness is slight (0.217) Based on the distribution of the wine quality, it seems that majority of the red wines in the samples have been graded at 5 and 6, each with at least 600 counts. While this means that we are likely able to assess which physicochemical properties that make up wines at theses grades (5 and 6) and do so confidently, we might not be able to do the same with the other grades and perhaps more importantly compares across grades. In fact, the wines of other grades, may actually appear like outliers rather than the norm. That means we can conclude that wine of quality 5 or 6 may have a certain set of physichemical properties (with confidence), we might not be so confident (statistically) in determining if a higher level or lower level is better.
+
+# 2) Sample Population As mentioned, the main wines are of grades 5 and 6. It is possible that this sampling (of this sample set) could not have been done properly or biased.
+
+# Stage 2b - Reconnaisance of Data (Part II)
+
+# From the earlier reconnaisance of Data, it seems that there are 11 variables that could possible have an influence on the quality of the red wine. Therefore we will need to narrow down the variables, so we can determine the order (based on the correlation) of the 11 variables that we will be investigating. This will done by doing principal component analysis (PCA). 
+
+```{r}
+var_length<-length(as.matrix(wine))/length(wine) # No. of Variables for biplot
+pcx<-prcomp(wine, scale=TRUE) # PCA analysis
+biplot(pcx, xlab=rep('.', var_length)) #plotting using biplot
+```
+
+# From the PCA, we can see that alcohol content is the closest in correlation (positive) to quality, followed by sulphate. There also possible negative correlation for some variables. We can then plot the univariates and make the subsequent analysis based on the order observed in the PCA. 
+
+
+# Univariate Plots Section
+
+# As this project requires us to start from univariate to multivariate, we will now commence with univariate analysis. From the PCA we can see that alcohol has the strongest correlation, thus we will begin with alcohol.  
+
+# Univariate Plots - Alcohol
+```{r}
+grid.arrange(ggplot(wine, aes( x = 1, y = alcohol ) ) + 
+               geom_jitter(alpha = 0.1 ) +
+               geom_boxplot(alpha = 0.2, color = 'red' ) +
+               scale_y_continuous(lim = c(7.5,15)),
+ggplot(data = wine, aes(x = alcohol)) +
+  geom_histogram(binwidth = 1, color = 'black',fill = I('orange')) + 
+  scale_x_continuous(lim = c(5,15)),ncol = 2)
+```
+# The univariate plot for Alcohol looks very similiar to wine quality, especially the count for each level of 
+
+# Univariate Plots - Sulphates
+```{r}
+grid.arrange(ggplot(wine, aes( x = 1, y = sulphates ) ) + 
+               geom_jitter(alpha = 0.1 ) +
+               geom_boxplot(alpha = 0.2, color = 'red' ) +
+               scale_y_continuous(lim = c(0,2)),
+ggplot(data = wine, aes(x = sulphates)) +
+  geom_histogram(binwidth = 0.1, color = 'black',fill = I('orange')) + 
+  scale_x_continuous(lim = c(0,2)),ncol = 2)
+```
+
+# Univariate Plots - Total Sulfur Dioxiode
+```{r}
+grid.arrange(ggplot(wine, aes( x = 1, y = total.sulfur.dioxide) ) + 
+               geom_jitter(alpha = 0.1 ) +
+               geom_boxplot(alpha = 0.2, color = 'red' ) +
+               scale_y_continuous(lim = c(0,180)),
+ggplot(data = wine, aes(x = total.sulfur.dioxide)) +
+  geom_histogram(binwidth = 1, color = 'black',fill = I('orange')) + 
+  scale_x_continuous(lim = c(0,180)),ncol = 2)
+```
+
+# Univariate Plots - Free Sulfur Dioxiode
+```{r}
+grid.arrange(ggplot(wine, aes( x = 1, y = free.sulfur.dioxide) ) + 
+               geom_jitter(alpha = 0.1 ) +
+               geom_boxplot(alpha = 0.2, color = 'red' ) +
+               scale_y_continuous(lim = c(0,75)),
+ggplot(data = wine, aes(x = free.sulfur.dioxide)) +
+  geom_histogram(binwidth = 1, color = 'black',fill = I('orange')) + 
+  scale_x_continuous(lim = c(0,75)),ncol = 2)
+```
+
+# Univariate Plots - Density
+```{r}
+grid.arrange(ggplot(wine, aes( x = 1, y = density) ) + 
+               geom_jitter(alpha = 0.1 ) +
+               geom_boxplot(alpha = 0.2, color = 'red' ) +
+               scale_y_continuous(lim = c(0.99,1.005)),
+ggplot(data = wine, aes(x = density)) +
+  geom_histogram(binwidth = 0.001, color = 'black',fill = I('orange')) + 
+  scale_x_continuous(lim = c(0.99,1.005)),ncol = 2)
+```
+# Univariate Plots - Fixed Acidity
+```{r}
+grid.arrange(ggplot(wine, aes( x = 1, y = fixed.acidity) ) + 
+               geom_jitter(alpha = 0.1 ) +
+               geom_boxplot(alpha = 0.2, color = 'red' ) +
+               scale_y_continuous(lim = c(4,16)),
+ggplot(data = wine, aes(x = fixed.acidity)) +
+  geom_histogram(binwidth = 0.1, color = 'black',fill = I('orange')) + 
+  scale_x_continuous(lim = c(4,16)),ncol = 2)
+```
+# Univariate Plots - Volatile Acidity
+```{r}
+grid.arrange(ggplot(wine, aes( x = 1, y = volatile.acidity) ) + 
+               geom_jitter(alpha = 0.1 ) +
+               geom_boxplot(alpha = 0.2, color = 'red' ) +
+               scale_y_continuous(lim = c(0.10,1.6)),
+ggplot(data = wine, aes(x = volatile.acidity)) +
+  geom_histogram(binwidth = 0.01, color = 'black',fill = I('orange')) + 
+  scale_x_continuous(lim = c(0.10,1.6)),ncol = 2)
+```
+
+# Univariate Plots - pH
+```{r}
+grid.arrange(ggplot(wine, aes( x = 1, y = pH) ) + 
+               geom_jitter(alpha = 0.1 ) +
+               geom_boxplot(alpha = 0.2, color = 'red' ) +
+               scale_y_continuous(lim = c(0.000,1.000)),
+ggplot(data = wine, aes(x = pH)) +
+  geom_histogram(binwidth = 0.001, color = 'black',fill = I('orange')) + 
+  scale_x_continuous(lim = c(0.000,0.800)),ncol = 1)
+```
+
+# Univariate Plots - Residual Sugar
+```{r}
+grid.arrange(ggplot(wine, aes( x = 1, y = residual.sugar) ) + 
+               geom_jitter(alpha = 0.1 ) +
+               geom_boxplot(alpha = 0.2, color = 'red' ) +
+               scale_y_continuous(lim = c(2,10)),
+ggplot(data = wine, aes(x = residual.sugar)) +
+  geom_histogram(binwidth = 0.1, color = 'black',fill = I('orange')) + 
+  scale_x_continuous(lim = c(2.5,4)),ncol = 2)
+```
+
+
+# Univariate Plots - Citric Acid
+```{r}
+grid.arrange(ggplot(wine, aes( x = 1, y = citric.acid ) ) + 
+               geom_jitter(alpha = 0.1 ) +
+               geom_boxplot(alpha = 0.2, color = 'red' ) +
+               scale_y_continuous(lim = c(0.000,1.000)),
+ggplot(data = wine, aes(x = citric.acid)) +
+  geom_histogram(binwidth = 0.001, color = 'black',fill = I('orange')) + 
+  scale_x_continuous(lim = c(0.000,0.800)),ncol = 1)
+```
+
+> **Tip**: Make sure that you leave a blank line between the start / end of
+each code block and the end / start of your Markdown text so that it is
+formatted nicely in the knitted text. Note as well that text on consecutive
+lines is treated as a single space. Make sure you have a blank line between
+your paragraphs so that they too are formatted for easy readability.
+
+
+# Univariate Analysis
+
+> **Tip**: Now that you've completed your univariate explorations, it's time to
+reflect on and summarize what you've found. Use the questions below to help you
+gather your observations and add your own if you have other thoughts!
+
+### What is the structure of your dataset?
+
+### What is/are the main feature(s) of interest in your dataset?
+
+### What other features in the dataset do you think will help support your \
+investigation into your feature(s) of interest?
+
+### Did you create any new variables from existing variables in the dataset?
+
+### Of the features you investigated, were there any unusual distributions? \
+Did you perform any operations on the data to tidy, adjust, or change the form \
+of the data? If so, why did you do this?
+
+
+# Bivariate Plots Section
+
+# So far the plotting and analysis has been each variable by itself, it allows as to understand each variable, its distribution and how it might possibly influence the wine quality. Now is the bivariate plots, where we can look at the correlation between the variables and research question and possibly even with itself. 
+
+```{r echo=FALSE, Bivariate_Plots}
+
+```
+
+# Bivariate Analysis
+
+> **Tip**: As before, summarize what you found in your bivariate explorations
+here. Use the questions below to guide your discussion.
+
+### Talk about some of the relationships you observed in this part of the \
+investigation. How did the feature(s) of interest vary with other features in \
+the dataset?
+
+### Did you observe any interesting relationships between the other features \
+(not the main feature(s) of interest)?
+
+### What was the strongest relationship you found?
+
+
+# Multivariate Plots Section
+
+> **Tip**: Now it's time to put everything together. Based on what you found in
+the bivariate plots section, create a few multivariate plots to investigate
+more complex interactions between variables. Make sure that the plots that you
+create here are justified by the plots you explored in the previous section. If
+you plan on creating any mathematical models, this is the section where you
+will do that.
+
+```{r echo=FALSE, Multivariate_Plots}
+
+```
+
+# Multivariate Analysis
+
+### Talk about some of the relationships you observed in this part of the \
+investigation. Were there features that strengthened each other in terms of \
+looking at your feature(s) of interest?
+
+### Were there any interesting or surprising interactions between features?
+
+### OPTIONAL: Did you create any models with your dataset? Discuss the \
+strengths and limitations of your model.
+
+------
+
+# Final Plots and Summary
+
+> **Tip**: You've done a lot of exploration and have built up an understanding
+of the structure of and relationships between the variables in your dataset.
+Here, you will select three plots from all of your previous exploration to
+present here as a summary of some of your most interesting findings. Make sure
+that you have refined your selected plots for good titling, axis labels (with
+units), and good aesthetic choices (e.g. color, transparency). After each plot,
+make sure you justify why you chose each plot by describing what it shows.
+
+### Plot One
+```{r echo=FALSE, Plot_One}
+
+```
+
+### Description One
+
+
+### Plot Two
+```{r echo=FALSE, Plot_Two}
+
+```
+
+### Description Two
+
+
+### Plot Three
+```{r echo=FALSE, Plot_Three}
+
+```
+
+### Description Three
+
+------
+
+# Reflection
+
+# This is my first time using R, so that was a difficulty there by itself. Nevertheless it was a nice challenge to learn R and the plots are beautiful. 
+
+#Another strange portion is the reverse analysis. Normally for research questions like this, it would be good to start with multivariate to see not only see the correlation between the dependent variable and independent varaibles but also the possible relationship between the independent variables also. Seeing or exploring the "big picture" first usually works before we zoom in and look at the univariate. But for this project it is the other way round, where we are required to go from univariate to multivariate. While there are some situations where this may be suitable, I find it strange this is the route to answer this research question. 
